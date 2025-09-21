@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use crate::algorithm::smoothing::smooth_on_corners;
+use crate::types::Note;
 
 /// Calcule les valeurs Xbar pour l'algorithme de star rating
 /// 
@@ -7,7 +8,7 @@ use crate::algorithm::smoothing::smooth_on_corners;
 /// * `k` - Nombre de colonnes
 /// * `_t` - Temps total de la map (non utilisé)
 /// * `x` - Paramètre de difficulté
-/// * `note_seq_by_column` - Notes organisées par colonne
+/// * `notes_by_column` - Notes organisées par colonne
 /// * `active_columns` - Colonnes actives à chaque point temporel
 /// * `base_corners` - Points de référence temporels
 /// 
@@ -17,9 +18,9 @@ pub fn compute_xbar(
     k: usize,
     _t: i64,
     x: f64,
-    note_seq_by_column: &Vec<Vec<(usize, i64, i64)>>,
-    active_columns: &Vec<Vec<usize>>,
-    base_corners: &Vec<f64>
+    notes_by_column: &[Vec<Note>],
+    active_columns: &[Vec<usize>],
+    base_corners: &[f64]
 ) -> Vec<f64> {
     // cross_matrix given in original script
     let cross_matrix: Vec<Vec<f64>> = vec![
@@ -47,19 +48,19 @@ pub fn compute_xbar(
 
     for col in 0..=k {
         // build notes_in_pair
-        let notes_in_pair: Vec<(usize, i64, i64)> = if col == 0 {
-            note_seq_by_column[0].clone()
+        let notes_in_pair: Vec<Note> = if col == 0 {
+            notes_by_column[0].clone()
         } else if col == k {
-            note_seq_by_column[k - 1].clone()
+            notes_by_column[k - 1].clone()
         } else {
-            // merge sorted lists note_seq_by_column[col-1] and note_seq_by_column[col]
-            let a = &note_seq_by_column[col - 1];
-            let b = &note_seq_by_column[col];
+            // merge sorted lists notes_by_column[col-1] and notes_by_column[col]
+            let a = &notes_by_column[col - 1];
+            let b = &notes_by_column[col];
             let mut merged = Vec::with_capacity(a.len() + b.len());
             let mut ia = 0usize;
             let mut ib = 0usize;
             while ia < a.len() && ib < b.len() {
-                if a[ia].1 <= b[ib].1 {
+                if a[ia].hit_time <= b[ib].hit_time {
                     merged.push(a[ia]);
                     ia += 1;
                 } else {
@@ -74,12 +75,12 @@ pub fn compute_xbar(
 
         if notes_in_pair.len() < 2 { continue; }
         for i in 1..notes_in_pair.len() {
-            let start = notes_in_pair[i - 1].1;
-            let end = notes_in_pair[i].1;
+            let start = notes_in_pair[i - 1].hit_time;
+            let end = notes_in_pair[i].hit_time;
             let idx_start = base_corners.partition_point(|&v| v < start as f64);
             let idx_end = base_corners.partition_point(|&v| v < end as f64);
             if idx_start >= idx_end { continue; }
-            let delta = 0.001 * ((notes_in_pair[i].1 - notes_in_pair[i - 1].1) as f64);
+            let delta = 0.001 * ((notes_in_pair[i].hit_time - notes_in_pair[i - 1].hit_time) as f64);
             let mut val = 0.16 * (x.max(delta)).powf(-2.0);
 
             // check active_columns condition

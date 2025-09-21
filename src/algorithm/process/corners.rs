@@ -1,18 +1,19 @@
 use std::collections::HashSet;
+use crate::types::Note;
 
 /// Calcule les différents types de corners pour l'algorithme de star rating
 /// 
 /// # Arguments
 /// * `t` - Temps total de la map
-/// * `note_seq` - Séquence des notes (colonne, hit_time, tail_time)
+/// * `notes` - Séquence des notes
 /// 
 /// # Returns
 /// Un tuple contenant (all_corners, base_corners, a_corners)
-pub fn get_corners(t: i64, note_seq: &Vec<(usize, i64, i64)>) -> (Vec<f64>, Vec<f64>, Vec<f64>) {
+pub fn get_corners(t: i64, notes: &[Note]) -> (Vec<f64>, Vec<f64>, Vec<f64>) {
     let mut corners_base: HashSet<i64> = HashSet::new();
-    for &(_, h, t) in note_seq.iter() {
-        corners_base.insert(h);
-        if t >= 0 { corners_base.insert(t); }
+    for note in notes.iter() {
+        corners_base.insert(note.hit_time);
+        if note.tail_time >= 0 { corners_base.insert(note.tail_time); }
     }
     let snapshot: Vec<i64> = corners_base.iter().cloned().collect();
     for s in snapshot.iter() {
@@ -26,9 +27,9 @@ pub fn get_corners(t: i64, note_seq: &Vec<(usize, i64, i64)>) -> (Vec<f64>, Vec<
     corners_base_vec.sort_unstable();
 
     let mut corners_a: HashSet<i64> = HashSet::new();
-    for &(_, h, t) in note_seq.iter() {
-        corners_a.insert(h);
-        if t >= 0 { corners_a.insert(t); }
+    for note in notes.iter() {
+        corners_a.insert(note.hit_time);
+        if note.tail_time >= 0 { corners_a.insert(note.tail_time); }
     }
     let snapshot_a: Vec<i64> = corners_a.iter().cloned().collect();
     for s in snapshot_a.iter() {

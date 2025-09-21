@@ -4,9 +4,15 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-rosu-map = "0.2.1"
 tokio = "1.47.1"
+
+[dev-dependencies]
+criterion = { version = "0.7", features = ["html_reports"] }
 
 [[example]]
 name = "star_rating_calculator"
 path = "examples/star_rating_calculator.rs"
+
+[[bench]]
+name = "star_rating_benchmark"
+harness = false

@@ -1,11 +1,12 @@
 use std::collections::HashMap;
+use crate::types::Note;
 
 /// Calcule les valeurs C et Ks pour l'algorithme de star rating
 /// 
 /// # Arguments
 /// * `k` - Nombre de colonnes
 /// * `_t` - Temps total de la map (non utilisé)
-/// * `note_seq` - Séquence des notes (colonne, hit_time, tail_time)
+/// * `notes` - Séquence des notes
 /// * `key_usage` - Utilisation des touches par colonne
 /// * `base_corners` - Points de référence temporels
 /// 
@@ -14,11 +15,11 @@ use std::collections::HashMap;
 pub fn compute_c_and_ks(
     k: usize,
     _t: i64,
-    note_seq: &Vec<(usize, i64, i64)>,
+    notes: &[Note],
     key_usage: &HashMap<usize, Vec<bool>>,
-    base_corners: &Vec<f64>
+    base_corners: &[f64]
 ) -> (Vec<f64>, Vec<f64>) {
-    let mut note_hit_times: Vec<i64> = note_seq.iter().map(|&(_k, h, _t)| h).collect();
+    let mut note_hit_times: Vec<i64> = notes.iter().map(|note| note.hit_time).collect();
     note_hit_times.sort_unstable();
     let n = base_corners.len();
     let mut c_step = vec![0.0; n];

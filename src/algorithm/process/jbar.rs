@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use crate::algorithm::smoothing::smooth_on_corners;
+use crate::types::Note;
 
 /// Calcule les valeurs Jbar pour l'algorithme de star rating
 /// 
@@ -7,7 +8,7 @@ use crate::algorithm::smoothing::smooth_on_corners;
 /// * `k` - Nombre de colonnes
 /// * `_t` - Temps total de la map (non utilisé)
 /// * `x` - Paramètre de difficulté
-/// * `note_seq_by_column` - Notes organisées par colonne
+/// * `notes_by_column` - Notes organisées par colonne
 /// * `base_corners` - Points de référence temporels
 /// 
 /// # Returns
@@ -16,8 +17,8 @@ pub fn compute_jbar(
     k: usize,
     _t: i64,
     x: f64,
-    note_seq_by_column: &Vec<Vec<(usize, i64, i64)>>,
-    base_corners: &Vec<f64>
+    notes_by_column: &[Vec<Note>],
+    base_corners: &[f64]
 ) -> (HashMap<usize, Vec<f64>>, Vec<f64>) {
     let n = base_corners.len();
     let mut j_ks: HashMap<usize, Vec<f64>> = HashMap::new();
@@ -31,11 +32,11 @@ pub fn compute_jbar(
     };
 
     for col in 0..k {
-        let notes = &note_seq_by_column[col];
+        let notes = &notes_by_column[col];
         if notes.len() < 2 { continue; }
         for i in 0..(notes.len() - 1) {
-            let start = notes[i].1;
-            let end = notes[i + 1].1;
+            let start = notes[i].hit_time;
+            let end = notes[i + 1].hit_time;
             let left_idx = base_corners.partition_point(|&v| v < start as f64);
             let right_idx = base_corners.partition_point(|&v| v < end as f64);
             if left_idx >= right_idx { continue; }

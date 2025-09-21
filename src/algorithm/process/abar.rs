@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use crate::algorithm::smoothing::smooth_on_corners;
+use crate::types::Note;
 
 /// Calcule les valeurs Abar pour l'algorithme de star rating
 /// 
@@ -7,7 +8,7 @@ use crate::algorithm::smoothing::smooth_on_corners;
 /// * `k` - Nombre de colonnes
 /// * `_t` - Temps total de la map (non utilisé)
 /// * `_x` - Paramètre de difficulté (non utilisé)
-/// * `_note_seq_by_column` - Notes organisées par colonne (non utilisé)
+/// * `_notes_by_column` - Notes organisées par colonne (non utilisé)
 /// * `active_columns` - Colonnes actives à chaque point temporel
 /// * `delta_ks` - Deltas par colonne
 /// * `a_corners` - Points de référence temporels pour A
@@ -19,11 +20,11 @@ pub fn compute_abar(
     k: usize,
     _t: i64,
     _x: f64,
-    _note_seq_by_column: &Vec<Vec<(usize, i64, i64)>>,
-    active_columns: &Vec<Vec<usize>>,
+    _notes_by_column: &[Vec<Note>],
+    active_columns: &[Vec<usize>],
     delta_ks: &HashMap<usize, Vec<f64>>,
-    a_corners: &Vec<f64>,
-    base_corners: &Vec<f64>
+    a_corners: &[f64],
+    base_corners: &[f64]
 ) -> Vec<f64> {
     let n = base_corners.len();
     // dks: k-1 x n

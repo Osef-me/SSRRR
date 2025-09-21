@@ -1,24 +1,25 @@
 use std::collections::HashMap;
+use crate::types::Note;
 
 /// Représentation sparse des corps de long notes
 /// 
 /// # Arguments
-/// * `ln_seq` - Séquence des long notes (colonne, hit_time, tail_time)
+/// * `long_notes` - Séquence des long notes
 /// * `t` - Temps total de la map
 /// 
 /// # Returns
 /// Tuple contenant (points, cumsum, values) pour la représentation sparse
 pub fn ln_bodies_count_sparse_representation(
-    ln_seq: &Vec<(usize, i64, i64)>,
+    long_notes: &[Note],
     t: i64
 ) -> (Vec<i64>, Vec<f64>, Vec<f64>) {
     let mut diff: HashMap<i64, f64> = HashMap::new();
-    for &(_k, h, tail) in ln_seq.iter() {
-        let t0 = (h + 60).min(tail);
-        let t1 = (h + 120).min(tail);
+    for note in long_notes.iter() {
+        let t0 = (note.hit_time + 60).min(note.tail_time);
+        let t1 = (note.hit_time + 120).min(note.tail_time);
         *diff.entry(t0).or_insert(0.0) += 1.3;
         *diff.entry(t1).or_insert(0.0) += -1.3 + 1.0;
-        *diff.entry(tail).or_insert(0.0) += -1.0;
+        *diff.entry(note.tail_time).or_insert(0.0) += -1.0;
     }
     let mut points: Vec<i64> = diff.keys().cloned().collect();
     points.push(0);
@@ -38,7 +39,7 @@ pub fn ln_bodies_count_sparse_representation(
         let v = curr.min(2.5 + 0.5 * curr);
         values.push(v);
         let seg_length = (points[i + 1] - points[i]) as f64;
-        let last = *cumsum.last().unwrap();
+        let last = *cumsum.last().expect("Vecteur non vide attendu");
         cumsum.push(last + seg_length * v);
     }
     (points, cumsum, values)

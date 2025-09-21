@@ -1,6 +1,7 @@
 use std::fs;
 use std::path::Path;
 use SSRRR::algorithm::process::process::calculate;
+use SSRRR::algorithm::process::preprocess::preprocess_file;
 
 fn main() {
     let test_dir = Path::new("assets");
@@ -35,9 +36,27 @@ fn main() {
                 .and_then(|name| name.to_str())
                 .unwrap_or("unknown");
             
-            // Calculate star rating for this file
-            let star_rating = calculate(&file_path, "None");
-            println!("{} | {:.4}", file_name, star_rating);
+            
+            // Calculate star rating using the new improved method
+            match preprocess_file(&file_path, "None") {
+                Ok(map_data) => {
+                    match calculate(&map_data) {
+                        Ok(result) => {
+                            println!("{} | {:.4} ({} notes, {} long notes)", 
+                                     file_name,
+                                     result.rating, 
+                                     map_data.note_count(), 
+                                     map_data.long_note_count());
+                        }
+                        Err(e) => {
+                            println!("{} | CALCULATION ERROR: {}", file_name, e);
+                        }
+                    }
+                }
+                Err(e) => {
+                    println!("{} | PARSE ERROR: {}", file_name, e);
+                }
+            }
         }
     }
 }

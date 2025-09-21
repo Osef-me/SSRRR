@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+// use crate::errors::{StarRatingResult, CalculationError};
 
 /// Calcule les valeurs d'anchor basées sur l'utilisation des touches
 /// 
@@ -12,7 +13,7 @@ use std::collections::HashMap;
 pub fn compute_anchor(
     k: usize,
     key_usage_400: &HashMap<usize, Vec<f64>>,
-    base_corners: &Vec<f64>
+    base_corners: &[f64]
 ) -> Vec<f64> {
     let n = base_corners.len();
     let mut anchor = vec![0.0; n];
@@ -22,7 +23,7 @@ pub fn compute_anchor(
             key_usage_400.get(&col).map(|v| v[idx]).unwrap_or(0.0)
         }).collect();
         // sort descending (counts[::-1].sort() in python after reversing)
-        counts.sort_by(|a, b| b.partial_cmp(a).unwrap());
+        counts.sort_by(|a, b| b.partial_cmp(a).expect("Valeurs finies attendues"));
         // filter nonzero
         let nonzero: Vec<f64> = counts.into_iter().filter(|&x| x != 0.0).collect();
         if nonzero.len() > 1 {
