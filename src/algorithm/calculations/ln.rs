@@ -1,14 +1,15 @@
 use std::collections::HashMap;
 use crate::types::Note;
 
-/// Représentation sparse des corps de long notes
+/// Sparse representation of long note bodies
 /// 
 /// # Arguments
-/// * `long_notes` - Séquence des long notes
-/// * `t` - Temps total de la map
+/// * `long_notes` - Long note sequence
+/// * `t` - Total map time
 /// 
 /// # Returns
-/// Tuple contenant (points, cumsum, values) pour la représentation sparse
+/// Tuple (points, cumsum, values) for the sparse representation
+#[inline]
 pub fn ln_bodies_count_sparse_representation(
     long_notes: &[Note],
     t: i64
@@ -45,15 +46,16 @@ pub fn ln_bodies_count_sparse_representation(
     (points, cumsum, values)
 }
 
-/// Calcule la somme des valeurs LN sur un intervalle
+/// Computes the sum of LN values over an interval
 /// 
 /// # Arguments
-/// * `a` - Temps de début
-/// * `b` - Temps de fin
-/// * `ln_rep` - Représentation sparse des LN (points, cumsum, values)
+/// * `a` - Start time
+/// * `b` - End time
+/// * `ln_rep` - Sparse LN representation (points, cumsum, values)
 /// 
 /// # Returns
-/// Valeur de la somme sur l'intervalle
+/// Sum value over the interval
+#[inline]
 pub fn ln_sum(a: f64, b: f64, ln_rep: &(Vec<i64>, Vec<f64>, Vec<f64>)) -> f64 {
     let (points, cumsum, values) = ln_rep;
     // points are i64; find i = bisect_right(points, a) - 1
@@ -73,3 +75,5 @@ pub fn ln_sum(a: f64, b: f64, ln_rep: &(Vec<i64>, Vec<f64>, Vec<f64>)) -> f64 {
     }
     total
 }
+
+

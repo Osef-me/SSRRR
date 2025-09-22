@@ -3,16 +3,16 @@ use crate::algorithm::interpolation::{interp_values, step_interp};
 use crate::types::{MapData, StarRating, StarRatingComponents, StarRatingResult};
 
 // Import des modules décomposés
-use crate::algorithm::process::corners::get_corners;
-use crate::algorithm::process::key_usage::{get_key_usage, get_key_usage_400};
-use crate::algorithm::process::anchor::compute_anchor;
-use crate::algorithm::process::ln::ln_bodies_count_sparse_representation;
-use crate::algorithm::process::jbar::compute_jbar;
-use crate::algorithm::process::xbar::compute_xbar;
-use crate::algorithm::process::pbar::compute_pbar;
-use crate::algorithm::process::abar::compute_abar;
-use crate::algorithm::process::rbar::compute_rbar;
-use crate::algorithm::process::ck::compute_c_and_ks;
+use crate::algorithm::calculations::corners::get_corners;
+use crate::algorithm::calculations::key_usage::{get_key_usage, get_key_usage_400};
+use crate::algorithm::calculations::anchor::compute_anchor;
+use crate::algorithm::calculations::ln::ln_bodies_count_sparse_representation;
+use crate::algorithm::bars::jbar::compute_jbar;
+use crate::algorithm::bars::xbar::compute_xbar;
+use crate::algorithm::bars::pbar::compute_pbar;
+use crate::algorithm::bars::abar::compute_abar;
+use crate::algorithm::bars::rbar::compute_rbar;
+use crate::algorithm::calculations::ck::compute_c_and_ks;
 
 
 /// Main star rating calculation function
@@ -64,6 +64,7 @@ fn calculate_internal(map_data: &MapData) -> f64 {
 }
 
 /// Computes active columns for each time point
+#[inline]
 fn compute_active_columns(key_usage: &std::collections::HashMap<usize, Vec<bool>>, k: usize, n: usize) -> Vec<Vec<usize>> {
     (0..n)
         .map(|i| {
@@ -206,6 +207,7 @@ fn compute_weighted_aggregation(
 }
 
 /// Computes gaps between corners
+#[inline]
 fn compute_gaps(all_corners: &[f64]) -> Vec<f64> {
     let n = all_corners.len();
     if n < 2 {

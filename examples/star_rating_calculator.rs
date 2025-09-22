@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::Path;
-use SSRRR::algorithm::process::process::calculate;
-use SSRRR::algorithm::process::preprocess::preprocess_file;
+use ssrrr::algorithm::process::process::calculate;
+use ssrrr::algorithm::process::preprocess::preprocess_file;
 
 fn main() {
     let test_dir = Path::new("assets");

@@ -1,7 +1,7 @@
 use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId};
 use std::hint::black_box;
-use SSRRR::algorithm::process::preprocess::preprocess_file;
-use SSRRR::algorithm::process::process::calculate;
+use ssrrr::algorithm::process::preprocess::preprocess_file;
+use ssrrr::algorithm::process::process::calculate;
 
 /// Simple benchmark for star rating calculation speed
 fn benchmark_star_rating_speed(c: &mut Criterion) {

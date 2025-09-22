@@ -1,19 +1,18 @@
-use std::collections::HashMap;
 use crate::algorithm::smoothing::smooth_on_corners;
 use crate::types::Note;
 
-/// Calcule les valeurs Xbar pour l'algorithme de star rating
+/// Computes Xbar values for the star rating algorithm
 /// 
 /// # Arguments
-/// * `k` - Nombre de colonnes
-/// * `_t` - Temps total de la map (non utilisé)
-/// * `x` - Paramètre de difficulté
-/// * `notes_by_column` - Notes organisées par colonne
-/// * `active_columns` - Colonnes actives à chaque point temporel
-/// * `base_corners` - Points de référence temporels
+/// * `k` - Number of columns
+/// * `_t` - Total map time (unused)
+/// * `x` - Difficulty parameter
+/// * `notes_by_column` - Notes organized by column
+/// * `active_columns` - Active columns at each time point
+/// * `base_corners` - Reference time points
 /// 
 /// # Returns
-/// Vecteur des valeurs Xbar
+/// Vector of Xbar values
 pub fn compute_xbar(
     k: usize,
     _t: i64,
@@ -37,14 +36,12 @@ pub fn compute_xbar(
         vec![0.325, 0.55, 0.45, 0.35, 0.25, 0.05, 0.25, 0.35, 0.45, 0.55, 0.325]
     ];
     let cross_coeff = cross_matrix.get(k).expect("cross_matrix[k] exists");
+    let mut cross_complement: Vec<f64> = Vec::with_capacity(cross_coeff.len());
+    for &c in cross_coeff.iter() { cross_complement.push(1.0 - c); }
 
     let n = base_corners.len();
-    let mut x_ks: HashMap<usize, Vec<f64>> = HashMap::new();
-    let mut fast_cross: HashMap<usize, Vec<f64>> = HashMap::new();
-    for col in 0..=k {
-        x_ks.insert(col, vec![0.0; n]);
-        fast_cross.insert(col, vec![0.0; n]);
-    }
+    let mut x_ks: Vec<Vec<f64>> = vec![vec![0.0; n]; k + 1];
+    let mut fast_cross: Vec<Vec<f64>> = vec![vec![0.0; n]; k + 1];
 
     for col in 0..=k {
         // build notes_in_pair
@@ -74,14 +71,18 @@ pub fn compute_xbar(
         };
 
         if notes_in_pair.len() < 2 { continue; }
+        let mut idx_start = 0usize;
+        let mut idx_end = 0usize;
         for i in 1..notes_in_pair.len() {
-            let start = notes_in_pair[i - 1].hit_time;
-            let end = notes_in_pair[i].hit_time;
-            let idx_start = base_corners.partition_point(|&v| v < start as f64);
-            let idx_end = base_corners.partition_point(|&v| v < end as f64);
+            let start = notes_in_pair[i - 1].hit_time as f64;
+            let end = notes_in_pair[i].hit_time as f64;
+            while idx_start < base_corners.len() && base_corners[idx_start] < start { idx_start += 1; }
+            if idx_end < idx_start { idx_end = idx_start; }
+            while idx_end < base_corners.len() && base_corners[idx_end] < end { idx_end += 1; }
             if idx_start >= idx_end { continue; }
-            let delta = 0.001 * ((notes_in_pair[i].hit_time - notes_in_pair[i - 1].hit_time) as f64);
-            let mut val = 0.16 * (x.max(delta)).powf(-2.0);
+            let delta = 0.001 * (end - start);
+            let inv = 1.0 / (x.max(delta));
+            let mut val = 0.16 * inv * inv;
 
             // check active_columns condition
             let cond1 = {
@@ -94,21 +95,11 @@ pub fn compute_xbar(
                 let b1 = active_columns.get(idx_end).map(|v| v.contains(&col)).unwrap_or(false);
                 !b0 && !b1
             };
-            if cond1 || cond2 {
-                val *= 1.0 - cross_coeff[col];
-            }
-            if let Some(xvec) = x_ks.get_mut(&col) {
-                for idx in idx_start..idx_end {
-                    xvec[idx] = val;
-                }
-            }
-            if let Some(fvec) = fast_cross.get_mut(&col) {
-                let base = (delta.max(0.06).max(0.75 * x)).powf(-2.0);
-                let fc = (0.4 * base - 80.0).max(0.0);
-                for idx in idx_start..idx_end {
-                    fvec[idx] = fc;
-                }
-            }
+            if cond1 || cond2 { val *= cross_complement[col]; }
+            for idx in idx_start..idx_end { x_ks[col][idx] = val; }
+            let base = (delta.max(0.06).max(0.75 * x)).powf(-2.0);
+            let fc = (0.4 * base - 80.0).max(0.0);
+            for idx in idx_start..idx_end { fast_cross[col][idx] = fc; }
         }
     }
 
@@ -116,14 +107,11 @@ pub fn compute_xbar(
     let mut x_base = vec![0.0; n];
     for i in 0..n {
         let mut sum1 = 0.0;
-        for col in 0..=k {
-            let coeff = cross_coeff[col];
-            sum1 += x_ks.get(&col).unwrap()[i] * coeff;
-        }
+        for col in 0..=k { sum1 += x_ks[col][i] * cross_coeff[col]; }
         let mut sum2 = 0.0;
         for col in 0..k {
-            let v1 = fast_cross.get(&col).unwrap()[i];
-            let v2 = fast_cross.get(&(col + 1)).unwrap()[i];
+            let v1 = fast_cross[col][i];
+            let v2 = fast_cross[col + 1][i];
             let c1 = cross_coeff[col];
             let c2 = cross_coeff[col + 1];
             sum2 += (v1 * c1 * v2 * c2).sqrt();
@@ -131,6 +119,8 @@ pub fn compute_xbar(
         x_base[i] = sum1 + sum2;
     }
 
-    let xbar = smooth_on_corners(base_corners, &x_base, 500.0, 0.001, "sum");
+    let xbar = smooth_on_corners(base_corners, &x_base, 500.0, 0.001, crate::algorithm::smoothing::SmoothMode::Sum);
     xbar
 }
+
+

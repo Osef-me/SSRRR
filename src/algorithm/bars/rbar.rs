@@ -1,19 +1,19 @@
-use crate::algorithm::smoothing::smooth_on_corners;
+use crate::algorithm::smoothing::{smooth_on_corners, SmoothMode};
 use crate::algorithm::utils::find_next_note_in_column;
 use crate::types::Note;
 
-/// Calcule les valeurs Rbar pour l'algorithme de star rating
+/// Computes Rbar values for the star rating algorithm
 /// 
 /// # Arguments
-/// * `_k` - Nombre de colonnes (non utilisé)
-/// * `_t` - Temps total de la map (non utilisé)
-/// * `x` - Paramètre de difficulté
-/// * `notes_by_column` - Notes organisées par colonne
-/// * `tail_sequence` - Séquence des queues de long notes
-/// * `base_corners` - Points de référence temporels
+/// * `_k` - Number of columns (unused)
+/// * `_t` - Total map time (unused)
+/// * `x` - Difficulty parameter
+/// * `notes_by_column` - Notes organized by column
+/// * `tail_sequence` - Long note tail sequence
+/// * `base_corners` - Reference time points
 /// 
 /// # Returns
-/// Vecteur des valeurs Rbar
+/// Vector of Rbar values
 pub fn compute_rbar(
     _k: usize,
     _t: i64,
@@ -56,5 +56,7 @@ pub fn compute_rbar(
         }
     }
 
-    smooth_on_corners(base_corners, &r_step, 500.0, 0.001, "sum")
+    smooth_on_corners(base_corners, &r_step, 500.0, 0.001, SmoothMode::Sum)
 }
+
+

@@ -1,21 +1,21 @@
 use std::collections::HashMap;
-use crate::algorithm::smoothing::smooth_on_corners;
+use crate::algorithm::smoothing::{smooth_on_corners, SmoothMode};
 use crate::types::Note;
 
-/// Calcule les valeurs Abar pour l'algorithme de star rating
+/// Computes Abar values for the star rating algorithm
 /// 
 /// # Arguments
-/// * `k` - Nombre de colonnes
-/// * `_t` - Temps total de la map (non utilisé)
-/// * `_x` - Paramètre de difficulté (non utilisé)
-/// * `_notes_by_column` - Notes organisées par colonne (non utilisé)
-/// * `active_columns` - Colonnes actives à chaque point temporel
-/// * `delta_ks` - Deltas par colonne
-/// * `a_corners` - Points de référence temporels pour A
-/// * `base_corners` - Points de référence temporels de base
+/// * `k` - Number of columns
+/// * `_t` - Total map time (unused)
+/// * `_x` - Difficulty parameter (unused)
+/// * `_notes_by_column` - Notes organized by column (unused)
+/// * `active_columns` - Active columns at each time point
+/// * `delta_ks` - Deltas per column
+/// * `a_corners` - A-specific reference time points
+/// * `base_corners` - Base reference time points
 /// 
 /// # Returns
-/// Vecteur des valeurs Abar
+/// Vector of Abar values
 pub fn compute_abar(
     k: usize,
     _t: i64,
@@ -58,5 +58,6 @@ pub fn compute_abar(
             }
         }
     }
-    smooth_on_corners(a_corners, &a_step, 250.0, 1.0, "avg")
+    smooth_on_corners(a_corners, &a_step, 250.0, 1.0, SmoothMode::Avg)
 }
+

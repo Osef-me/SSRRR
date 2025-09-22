@@ -1,17 +1,17 @@
 use std::collections::HashMap;
 use crate::types::Note;
 
-/// Calcule les valeurs C et Ks pour l'algorithme de star rating
+/// Computes C and Ks values for the star rating algorithm
 /// 
 /// # Arguments
-/// * `k` - Nombre de colonnes
-/// * `_t` - Temps total de la map (non utilisé)
-/// * `notes` - Séquence des notes
-/// * `key_usage` - Utilisation des touches par colonne
-/// * `base_corners` - Points de référence temporels
+/// * `k` - Number of columns
+/// * `_t` - Total map time (unused)
+/// * `notes` - Note sequence
+/// * `key_usage` - Key usage per column
+/// * `base_corners` - Reference time points
 /// 
 /// # Returns
-/// Tuple contenant (c_step, ks_step) - les valeurs C et Ks
+/// Tuple (c_step, ks_step) - C and Ks values
 pub fn compute_c_and_ks(
     k: usize,
     _t: i64,
@@ -43,3 +43,5 @@ pub fn compute_c_and_ks(
     }
     (c_step, ks_step)
 }
+
+

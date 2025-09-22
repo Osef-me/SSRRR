@@ -1,15 +1,14 @@
 use std::collections::HashMap;
-// use crate::errors::{StarRatingResult, CalculationError};
 
-/// Calcule les valeurs d'anchor basées sur l'utilisation des touches
+/// Computes anchor values based on key usage
 /// 
 /// # Arguments
-/// * `k` - Nombre de colonnes
-/// * `key_usage_400` - Utilisation pondérée des touches avec fenêtre 400ms
-/// * `base_corners` - Points de référence temporels
+/// * `k` - Number of columns
+/// * `key_usage_400` - Weighted key usage with a 400ms window
+/// * `base_corners` - Reference time points
 /// 
 /// # Returns
-/// Vecteur des valeurs d'anchor pour chaque point temporel
+/// Vector of anchor values for each time point
 pub fn compute_anchor(
     k: usize,
     key_usage_400: &HashMap<usize, Vec<f64>>,
@@ -49,3 +48,5 @@ pub fn compute_anchor(
     }
     anchor
 }
+
+

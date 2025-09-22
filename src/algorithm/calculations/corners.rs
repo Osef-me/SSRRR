@@ -1,14 +1,14 @@
 use std::collections::HashSet;
 use crate::types::Note;
 
-/// Calcule les différents types de corners pour l'algorithme de star rating
+/// Computes the different types of corners for the star rating algorithm
 /// 
 /// # Arguments
-/// * `t` - Temps total de la map
-/// * `notes` - Séquence des notes
+/// * `t` - Total map time
+/// * `notes` - Note sequence
 /// 
 /// # Returns
-/// Un tuple contenant (all_corners, base_corners, a_corners)
+/// Returns a tuple (all_corners, base_corners, a_corners)
 pub fn get_corners(t: i64, notes: &[Note]) -> (Vec<f64>, Vec<f64>, Vec<f64>) {
     let mut corners_base: HashSet<i64> = HashSet::new();
     for note in notes.iter() {
@@ -52,3 +52,4 @@ pub fn get_corners(t: i64, notes: &[Note]) -> (Vec<f64>, Vec<f64>, Vec<f64>) {
         corners_a_vec.into_iter().map(|v| v as f64).collect(),
     )
 }
+

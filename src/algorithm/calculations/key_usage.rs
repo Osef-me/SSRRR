@@ -1,16 +1,16 @@
 use std::collections::HashMap;
 use crate::types::Note;
 
-/// Calcule l'utilisation des touches pour chaque colonne
+/// Computes key usage for each column
 /// 
 /// # Arguments
-/// * `k` - Nombre de colonnes
-/// * `t` - Temps total de la map
-/// * `notes` - Séquence des notes
-/// * `base_corners` - Points de référence temporels
+/// * `k` - Number of columns
+/// * `t` - Total map time
+/// * `notes` - Note sequence
+/// * `base_corners` - Reference time points
 /// 
 /// # Returns
-/// HashMap avec l'utilisation booléenne de chaque colonne
+/// HashMap with boolean usage per column
 pub fn get_key_usage(
     k: usize,
     t: i64,
@@ -35,16 +35,16 @@ pub fn get_key_usage(
     key_usage
 }
 
-/// Calcule l'utilisation des touches avec une fenêtre de 400ms
+/// Computes key usage with a 400ms window
 /// 
 /// # Arguments
-/// * `k` - Nombre de colonnes
-/// * `t` - Temps total de la map
-/// * `notes` - Séquence des notes
-/// * `base_corners` - Points de référence temporels
+/// * `k` - Number of columns
+/// * `t` - Total map time
+/// * `notes` - Note sequence
+/// * `base_corners` - Reference time points
 /// 
 /// # Returns
-/// HashMap avec l'utilisation pondérée de chaque colonne
+/// HashMap with weighted usage per column
 pub fn get_key_usage_400(
     k: usize,
     t: i64,
@@ -79,3 +79,5 @@ pub fn get_key_usage_400(
     }
     key_usage_400
 }
+
+
