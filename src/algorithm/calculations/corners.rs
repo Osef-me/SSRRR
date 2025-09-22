@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use crate::types::Note;
 
 /// Computes the different types of corners for the star rating algorithm
@@ -10,39 +9,49 @@ use crate::types::Note;
 /// # Returns
 /// Returns a tuple (all_corners, base_corners, a_corners)
 pub fn get_corners(t: i64, notes: &[Note]) -> (Vec<f64>, Vec<f64>, Vec<f64>) {
-    let mut corners_base: HashSet<i64> = HashSet::new();
+    // Build base corners via vector + sort+dedup (faster than HashSet for this size)
+    let mut base_candidates: Vec<i64> = Vec::with_capacity(notes.len() * 4 + 4);
     for note in notes.iter() {
-        corners_base.insert(note.hit_time);
-        if note.tail_time >= 0 { corners_base.insert(note.tail_time); }
+        base_candidates.push(note.hit_time);
+        if note.tail_time >= 0 { base_candidates.push(note.tail_time); }
     }
-    let snapshot: Vec<i64> = corners_base.iter().cloned().collect();
-    for s in snapshot.iter() {
-        corners_base.insert(s + 501);
-        corners_base.insert(s - 499);
-        corners_base.insert(s + 1);
+    // expansions
+    let snapshot_len = base_candidates.len();
+    for i in 0..snapshot_len {
+        let s = base_candidates[i];
+        base_candidates.push(s + 501);
+        base_candidates.push(s - 499);
+        base_candidates.push(s + 1);
     }
-    corners_base.insert(0);
-    corners_base.insert(t);
-    let mut corners_base_vec: Vec<i64> = corners_base.into_iter().filter(|&s| 0 <= s && s <= t).collect();
-    corners_base_vec.sort_unstable();
+    base_candidates.push(0);
+    base_candidates.push(t);
+    base_candidates.retain(|&s| 0 <= s && s <= t);
+    base_candidates.sort_unstable();
+    base_candidates.dedup();
+    let corners_base_vec = base_candidates;
 
-    let mut corners_a: HashSet<i64> = HashSet::new();
+    // A corners
+    let mut a_candidates: Vec<i64> = Vec::with_capacity(notes.len() * 3 + 2);
     for note in notes.iter() {
-        corners_a.insert(note.hit_time);
-        if note.tail_time >= 0 { corners_a.insert(note.tail_time); }
+        a_candidates.push(note.hit_time);
+        if note.tail_time >= 0 { a_candidates.push(note.tail_time); }
     }
-    let snapshot_a: Vec<i64> = corners_a.iter().cloned().collect();
-    for s in snapshot_a.iter() {
-        corners_a.insert(s + 1000);
-        corners_a.insert(s - 1000);
+    let snapshot_a_len = a_candidates.len();
+    for i in 0..snapshot_a_len {
+        let s = a_candidates[i];
+        a_candidates.push(s + 1000);
+        a_candidates.push(s - 1000);
     }
-    corners_a.insert(0);
-    corners_a.insert(t);
-    let mut corners_a_vec: Vec<i64> = corners_a.into_iter().filter(|&s| 0 <= s && s <= t).collect();
-    corners_a_vec.sort_unstable();
+    a_candidates.push(0);
+    a_candidates.push(t);
+    a_candidates.retain(|&s| 0 <= s && s <= t);
+    a_candidates.sort_unstable();
+    a_candidates.dedup();
+    let corners_a_vec = a_candidates;
 
-    let mut all_corners: Vec<i64> = corners_base_vec.iter().cloned().collect();
-    all_corners.extend(corners_a_vec.iter().cloned());
+    let mut all_corners: Vec<i64> = Vec::with_capacity(corners_base_vec.len() + corners_a_vec.len());
+    all_corners.extend_from_slice(&corners_base_vec);
+    all_corners.extend_from_slice(&corners_a_vec);
     all_corners.sort_unstable();
     all_corners.dedup();
 

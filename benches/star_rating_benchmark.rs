@@ -1,4 +1,4 @@
-use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{criterion_group, criterion_main, Criterion};
 use std::hint::black_box;
 use ssrrr::algorithm::process::preprocess::preprocess_file;
 use ssrrr::algorithm::process::process::calculate;

@@ -16,3 +16,15 @@ path = "examples/star_rating_calculator.rs"
 [[bench]]
 name = "star_rating_benchmark"
 harness = false
+
+[[bench]]
+name = "file_read_benchmark"
+harness = false
+
+[[bench]]
+name = "preprocess_benchmark"
+harness = false
+
+[[bench]]
+name = "phases_benchmark"
+harness = false

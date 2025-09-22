@@ -41,26 +41,79 @@ pub fn calculate(map_data: &MapData) -> StarRatingResult<StarRating> {
 
 /// Internal calculation function
 fn calculate_internal(map_data: &MapData) -> f64 {
-    // === Phase 1: Data preparation ===
+    let (all_corners, base_corners, a_corners, key_usage, active_columns, key_usage_400, anchor) = phase1(map_data);
+    let (jbar, xbar, pbar, abar, rbar, c_arr, ks_arr) = phase2(map_data, &active_columns, &a_corners, &base_corners, &all_corners, &anchor);
+    let (_s_all, _t_all, d_all) = phase3(&jbar, &xbar, &pbar, &abar, &rbar, &c_arr, &ks_arr);
+    let (percentile_93, percentile_83, weighted_mean) = phase4(&d_all, &c_arr, &all_corners);
+    phase5(percentile_93, percentile_83, weighted_mean, &map_data.notes, &map_data.long_notes)
+}
+
+/// Phase 1: Data preparation
+pub fn phase1(
+    map_data: &MapData,
+) -> (
+    Vec<f64>, // all_corners
+    Vec<f64>, // base_corners
+    Vec<f64>, // a_corners
+    std::collections::HashMap<usize, Vec<bool>>, // key_usage
+    Vec<Vec<usize>>, // active_columns
+    std::collections::HashMap<usize, Vec<f64>>, // key_usage_400
+    Vec<f64>, // anchor
+) {
     let (all_corners, base_corners, a_corners) = get_corners(map_data.total_duration, &map_data.notes);
     let key_usage = get_key_usage(map_data.column_count, map_data.total_duration, &map_data.notes, &base_corners);
     let active_columns = compute_active_columns(&key_usage, map_data.column_count, base_corners.len());
     let key_usage_400 = get_key_usage_400(map_data.column_count, map_data.total_duration, &map_data.notes, &base_corners);
     let anchor = compute_anchor(map_data.column_count, &key_usage_400, &base_corners);
+    (all_corners, base_corners, a_corners, key_usage, active_columns, key_usage_400, anchor)
+}
 
-    // === Phase 2: Bar calculations ===
+/// Phase 2: Bar calculations
+pub fn phase2(
+    map_data: &MapData,
+    active_columns: &[Vec<usize>],
+    a_corners: &[f64],
+    base_corners: &[f64],
+    all_corners: &[f64],
+    anchor: &[f64],
+) -> (Vec<f64>, Vec<f64>, Vec<f64>, Vec<f64>, Vec<f64>, Vec<f64>, Vec<f64>) {
     let (jbar, xbar, pbar, abar, rbar, c_arr, ks_arr) = compute_all_bars(
-        map_data, &active_columns, &a_corners, &base_corners, &all_corners, &anchor
+        map_data, active_columns, a_corners, base_corners, all_corners, anchor,
     );
+    (jbar, xbar, pbar, abar, rbar, c_arr, ks_arr)
+}
 
-    // === Phase 3: Final value calculations ===
-    let (_s_all, _t_all, d_all) = compute_final_values(&jbar, &xbar, &pbar, &abar, &rbar, &c_arr, &ks_arr);
+/// Phase 3: Final value calculations
+pub fn phase3(
+    jbar: &[f64],
+    xbar: &[f64],
+    pbar: &[f64],
+    abar: &[f64],
+    rbar: &[f64],
+    c_arr: &[f64],
+    ks_arr: &[f64],
+) -> (Vec<f64>, Vec<f64>, Vec<f64>) {
+    compute_final_values(jbar, xbar, pbar, abar, rbar, c_arr, ks_arr)
+}
 
-    // === Phase 4: Weighted aggregation ===
-    let (percentile_93, percentile_83, weighted_mean) = compute_weighted_aggregation(&d_all, &c_arr, &all_corners);
+/// Phase 4: Weighted aggregation and percentiles
+pub fn phase4(
+    d_all: &[f64],
+    c_arr: &[f64],
+    all_corners: &[f64],
+) -> (f64, f64, f64) {
+    compute_weighted_aggregation(d_all, c_arr, all_corners)
+}
 
-    // === Phase 5: Final star rating calculation ===
-    compute_final_star_rating(percentile_93, percentile_83, weighted_mean, &map_data.notes, &map_data.long_notes)
+/// Phase 5: Final star rating calculation
+pub fn phase5(
+    percentile_93: f64,
+    percentile_83: f64,
+    weighted_mean: f64,
+    notes: &[crate::types::Note],
+    long_notes: &[crate::types::Note],
+) -> f64 {
+    compute_final_star_rating(percentile_93, percentile_83, weighted_mean, notes, long_notes)
 }
 
 /// Computes active columns for each time point

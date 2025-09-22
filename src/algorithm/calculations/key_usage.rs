@@ -17,10 +17,8 @@ pub fn get_key_usage(
     notes: &[Note],
     base_corners: &[f64]
 ) -> HashMap<usize, Vec<bool>> {
-    let mut key_usage: HashMap<usize, Vec<bool>> = HashMap::new();
-    for col in 0..k {
-        key_usage.insert(col, vec![false; base_corners.len()]);
-    }
+    let mut key_usage: HashMap<usize, Vec<bool>> = HashMap::with_capacity(k);
+    for col in 0..k { key_usage.insert(col, vec![false; base_corners.len()]); }
     for note in notes.iter() {
         let start_time = (note.hit_time - 150).max(0);
         let end_time = if note.tail_time < 0 { note.hit_time + 150 } else { (note.tail_time + 150).min(t - 1) };
