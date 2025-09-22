@@ -2,6 +2,12 @@
 name = "ssrrr"
 version = "0.1.0"
 edition = "2024"
+description = "A rust way of sunnyxxy's star rating rework"
+license = "MIT"
+repository = "https://github.com/Osef-me/SSRRR"
+authors = ["Glubus"]
+keywords = ["osu", "game"]
+categories = ["games"]
 
 
 [dependencies]
